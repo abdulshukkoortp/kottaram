@@ -30,4 +30,16 @@ class ApplicationController < ActionController::Base
     error = t "#{policy_name}.#{exception.query}", scope: "pundit", default: :default
     redirect_to request.referrer, flash: {error: error}
   end
+
+  def month
+    params[:date] ? (params[:date][:month] || Date.today.month) : Date.today.month
+  end
+
+  def year
+    params[:date] ? (params[:date][:year] || Date.today.year) : Date.today.year
+  end
+
+  def date_time
+    Time.new(year, month, '1', 0, 0 , 0)
+  end
 end

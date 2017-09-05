@@ -9,7 +9,8 @@ class Event < ApplicationRecord
   	  errors << "You are already part of this event"
   	else
   	  begin
-        @group = groups.vacant(self).order("RANDOM()").first
+        # @group = groups.vacant(self).order("RANDOM()").first
+        @group = groups.order("RANDOM()").first
       end while @group.users.size >= max_no_of_user_per_group
       @group.user_groups.create(user_id: user.id)
   	end

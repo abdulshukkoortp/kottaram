@@ -3,6 +3,11 @@ class User < ApplicationRecord
   has_many :groups, through: :user_groups
   has_many :events, through: :groups
   has_many :splitwises, foreign_key: :purchased_by
+  has_many :penalties, foreign_key: :user_id
+  has_many :payment_statuses
+
+
+  enum role: %w(normal treasurer admin)
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable,
          :omniauthable, :omniauth_providers => [:google_oauth2]
@@ -41,6 +46,21 @@ class User < ApplicationRecord
 
   def part_of?(group)
     group.users.include? self
+  end
+
+  def penalty(date_time)
+    penalties.billable_penalty_amount(date_time)
+  end
+
+  def payment_status(date_time)
+    year = date_time.to_time.year
+    month = date_time.to_time.month
+    year_month = year.to_s+'/'+month.to_s
+    payment_statuses.find_or_create_by(year_month: year_month)
+  end
+
+  def eligible_to_mark_payment(date_time)
+    (treasurer? || admin?) && (date_time.utc.end_of_month < Time.now.utc)
   end
 
   private

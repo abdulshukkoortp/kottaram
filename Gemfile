@@ -32,6 +32,8 @@ gem 'devise'
 gem "omniauth-google-oauth2"
 gem 'pg'
 
+gem 'lazy_high_charts'
+
 gem 'pundit'
 
 group :development, :test do

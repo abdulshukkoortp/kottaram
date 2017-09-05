@@ -10,6 +10,9 @@
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
 
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
   </head>
 
   <body class='inner-page'>
@@ -24,6 +27,8 @@
               <%= link_to 'Events', events_path, class: 'dropdown-item'%>
               <div class="dropdown-divider"></div>
               <%= link_to 'Analytics', analysis_splitwises_path, class: 'dropdown-item'%>
+              <div class="dropdown-divider"></div>
+              <%= link_to 'Penalties', penalties_path, class: 'dropdown-item'%>
               <div class="dropdown-divider"></div>
               <%= link_to('Logout', destroy_user_session_path, method: :delete, data: { confirm: 'Are you sure?' }, class: 'dropdown-item') %>
             </div>

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, except: [:index, :new, :create]
 
   # GET /users
   # GET /users.json
@@ -57,6 +57,17 @@ class UsersController < ApplicationController
     @user.destroy
     respond_to do |format|
       format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
+      format.json { head :no_content }
+    end
+  end
+
+  def change_payment_status
+    payment_status = @user.payment_statuses.find(params[:payment_id])
+    if payment_status
+      payment_status.paid = !payment_status.paid
+      payment_status.save
+    end
+    respond_to do |format|
       format.json { head :no_content }
     end
   end

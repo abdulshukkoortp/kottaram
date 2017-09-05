@@ -1,0 +1,44 @@
+<div class="analysis">
+  <div class="container">
+    <p id="notice"><%= notice %></p>
+    <h1>Penalty</h1>
+    <%= link_to 'New Penalty', new_penalty_path, class: 'entry btn btn-primary btn-sm' %>
+    <p>
+      <%= form_tag penalties_path, method: 'get' do %>
+         <%= select_month(@date_time || Date.today) %>
+         <%= select_year(@date_time || Date.today, :start_year => Date.today.year, :end_year => 8.years.from_now.year) %>
+         <%= submit_tag "Apply"%>
+      <% end %>
+    </p>
+  </div>
+  <div class="container pl-50 pr-50">
+    <p id="error"><%= flash[:error] %></p>
+
+    <div class="row">
+      <% @penalties.each do |penalty| %>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="card text-center w-90 mb-3">
+            <div class="card-header">
+              <%= penalty.user.first_name%>
+            </div>
+            <div class="card-block">
+              <h4 class="card-title"><%= penalty.amount%></h4>
+              <%if penalty.unconfirmed?%>
+                <%= link_to 'Approve Penalty', approve_penalty_path(penalty), class: 'btn btn-primary' %>
+                <br>
+              <%end%>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Actions">
+                <%= link_to 'Show', penalty, class: 'btn btn-success' %>
+                <%= link_to 'Edit', edit_penalty_path(penalty), class: 'btn btn-warning' %>
+                <%= link_to 'Destroy', penalty_path(penalty), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+              </div>
+            </div>
+            <div class="card-footer text-muted">
+              <%= penalty.date%>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

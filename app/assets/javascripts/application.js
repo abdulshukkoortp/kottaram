@@ -11,8 +11,12 @@
 // about supported directives.
 //
 //= require jquery
-//= require jquery_ujs
-//= require datetimepicker
 //= require turbolinks
+//= require jquery_ujs
+//= require highcharts/highcharts
+//= require highcharts/highcharts-more
+//= require highcharts/modules/no-data-to-display
+//= require datetimepicker
 //= require_tree .
 //= require bootstrap
+

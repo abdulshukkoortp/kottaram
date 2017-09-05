@@ -1,0 +1,41 @@
+<div class="container">
+    <p id="notice"><%= notice %></p>
+    <ul class="list-group">
+      <li class="list-group-item justify-content-between">
+         <span>Date</span>
+         <span><%= @penalty.date %></span>
+      </li>
+
+      <li class="list-group-item justify-content-between">
+         <span>Description</span>
+         <span><%= @penalty.description %></span>
+      </li>
+      <li class="list-group-item justify-content-between">
+         <span>Amount</span>
+         <span><%= @penalty.amount%></span>
+      </li>
+
+      <li class="list-group-item justify-content-between">
+         <span>Penalty To</span>
+         <span><%= @penalty.user.first_name%></span>
+      </li>
+      <li class="list-group-item justify-content-between">
+         <span>Added by/ Updated by</span>
+         <span><%= @penalty.creator.first_name%></span>
+      </li>
+      <%if @penalty.confirmed?%>
+        <li class="list-group-item justify-content-between">
+           <span>Confirmed by</span>
+           <span><%= @penalty.approver.first_name%></span>
+        </li>
+      <%end%>
+    </ul>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <%= link_to 'Edit', edit_penalty_path(@penalty), class: 'btn btn-primary' %>
+        <%= link_to 'Back', penalties_path , class: 'btn btn-primary'%>
+    </div>
+</div>
+
+
+
+

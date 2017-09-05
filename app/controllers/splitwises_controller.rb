@@ -65,6 +65,7 @@ class SplitwisesController < ApplicationController
   def analysis
     @date_time = date_time
     @monthly_purchase = Splitwise.analysis(@date_time)
+    set_pie_diagram
   end
 
   private
@@ -81,15 +82,37 @@ class SplitwisesController < ApplicationController
        :purchased_at, :created_by, :item_name, :description, :purchased_by)
     end
 
-    def month
-      params[:date] ? (params[:date][:month] || Date.today.month) : Date.today.month
+    def set_pie_diagram
+      @chart = LazyHighCharts::HighChart.new('pie') do |f|
+        f.chart({:defaultSeriesType=>"pie" ,
+          :margin=> [50, 200, 60, 170]} )
+        series = {
+                 :type=> 'pie',
+                 :name=> 'Monthly Investment Share',
+                 :data=> collect_data_of_payment
+        }
+        f.series(series)
+        f.options[:title][:text] = "Monthly Investment Details"
+        f.legend(:layout=> 'vertical',:style=> {:left=> 'auto', :bottom=> 'auto',:right=> '50px',:top=> '100px'})
+        f.plot_options(:pie=>{
+          :allowPointSelect=>true,
+          :cursor=>"pointer" ,
+          :dataLabels=>{
+            :enabled=>true,
+            :color=>"red",
+            :style=>{
+              :font=>"13px Trebuchet MS, Verdana, sans-serif"
+            }
+          }
+        })
+      end
     end
 
-    def year
-      params[:date] ? (params[:date][:year] || Date.today.year) : Date.today.year
-    end
-
-    def date_time
-      Time.new(year, month, '1', 0, 0 , 0)
+    def collect_data_of_payment
+      payment_data = []
+      @monthly_purchase.all.collect(&:purchasee).uniq.compact.each do |user|
+        payment_data << [user.first_name, user.spent_amount(@date_time)]
+      end
+      payment_data
     end
 end

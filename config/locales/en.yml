@@ -26,6 +26,10 @@ en:
     group_policy:
       completed?: "You are part of this team please ask other team's member to do the same!"
       skipped?: "You are part of this team please ask other team's member to do the same!"
+    penalty_policy:
+      approve?: "You are the creator or the last updater for the item you can not approve. Please ask any one else"
+      destroy?: "You are at the receiving end for penalty. :)"
+      update?: "Update is restricted after confirming the penalty."
   devise:
     omniauth_callbacks:
       error:

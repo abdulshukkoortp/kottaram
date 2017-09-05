@@ -3,26 +3,25 @@
 </p>
 <div class="container-fluid">
   <h1>Expense Log</h1>
-  <p>
-    <%= form_tag analysis_splitwises_path, method: 'get' do %>
-      <%= select_month(@date_time || Date.today) %>
-        <%= select_year(@date_time || Date.today, :start_year => Date.today.year, :end_year => 8.years.from_now.year) %>
-          <%= submit_tag "Apply"%>
-            <% end %>
-  </p>
   <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-5 ">
-      <div class="card mx-auto">
+    <%= form_tag analysis_splitwises_path, method: 'get', class: 'form-inline' do %>
+        <%= select_month(@date_time || Date.today, :class=> '.custom-select .mb-2 .mr-sm-2 .mb-sm-0')  %>
+        <%= select_year(@date_time || Date.today, :start_year => Date.today.year, :end_year => 8.years.from_now.year, :class=> '.custom-select .mb-2 .mr-sm-2 .mb-sm-0') %>
+          <%= submit_tag 'Apply', class: 'btn btn-primary'%>
+    <% end %>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-4 mb-3">
+      <div class="card">
         <div class="card-header text-center">
           <h2>History</h2>
         </div>
-        <div class="card-block">
+        <div class="card-block mx-auto">
           <table class="table table-sm table-responsive">
             <thead>
               <tr>
                 <th>Date</th>
                 <th>Purchased</th>
-                <th class="hidden-xs hidden-sm">Updated</th>
                 <th>Price</th>
               </tr>
             </thead>
@@ -35,9 +34,6 @@
                   <td>
                     <%= splitwise.purchasee.first_name%>
                   </td>
-                  <td class="hidden-xs hidden-sm">
-                    <%= splitwise.creator.first_name%>
-                  </td>
                   <td>
                     <%= splitwise.price%>
                   </td>
@@ -46,30 +42,28 @@
             </tbody>
           </table>
           <div class="text-center">
-          <%if @monthly_purchase.size > 3%>
-            <%= link_to 'For more details visit', splitwises_path, class: 'btn btn-success'%>
-              <%end%>
+            <%if @monthly_purchase.size > 3%>
+              <%= link_to 'For more details visit', splitwises_path, class: 'btn btn-success'%>
+                <%end%>
           </div>
         </div>
-        <div class="card-footer text-center">
+        <div class="card-footer text-center" >
           <h3>
-          <span class="badge badge-success">
             Total :
             <%=@monthly_purchase.cost_of_purchase%>
-          </span>
           </h3>
         </div>
       </div>
     </div>
     <div class="clearfix visible-xs-block"></div>
-    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-4 ">
-      <% total_expense = @monthly_purchase.total_expense%>
-        <% per_head_cost = (total_expense/User.billable(@date_time).count).to_f %>
-          <div class="card mx-auto">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-4 mb-3">
+      <% total_expense = @monthly_purchase.total_expense(@date_time)%>
+        <% per_head_cost = (total_expense/User.billable(@date_time).count).to_f.round(2) %>
+          <div class="card">
             <div class="card-header text-center">
               <h2>Source based report</h2>
             </div>
-            <div class="card-block">
+            <div class="card-block mx-auto">
               <table class="table table-sm table-responsive">
                 <thead>
                   <tr>
@@ -84,6 +78,12 @@
                       <%= HouseInfo.first.try(:rent).to_f%>
                     </td>
                   </tr>
+                  <tr>
+                    <td>Penalty</td>
+                    <td>
+                      <%= Penalty.billable_penalty_amount(@date_time)%>
+                    </td>
+                  </tr>
                   <% @monthly_purchase.all.collect(&:purchasee).uniq.compact.each do |user| %>
                     <tr>
                       <%spent_amount = user.spent_amount(@date_time)%>
@@ -94,32 +94,34 @@
                           <%= spent_amount%>
                         </td>
                     </tr>
-                    <% end %>
+                  <% end %>
                 </tbody>
               </table>
             </div>
             <div class="card-footer text-center">
               <h3>
-              <span class="badge badge-success">
               Total :<%= total_expense%>
-            </span>
-            </h3>
+            </h3> Per Head :
+              <%= per_head_cost%>
             </div>
           </div>
     </div>
     <div class="clearfix visible-xs-block"></div>
-    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 ">
-      <div class="card mx-auto">
+    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-4 mb-3">
+      <div class="card">
         <div class="card-header">
           <h2>Summary</h2>
         </div>
-        <div class="card-block">
+        <div class="card-block mx-auto" style="max-width: 100%;">
           <table class="table table-sm table-responsive">
             <thead>
               <tr>
                 <th> Name</th>
-                <th> Spend Amount</th>
-                <th> Bill Amount</th>
+                <th> Spend</th>
+                <th> Penalty</th>
+                <th> Payable</th>
+                <th> Paid</th>
+
               </tr>
             </thead>
             <tbody>
@@ -129,12 +131,30 @@
                     <%= user.first_name%>
                   </td>
                   <%spent_amount = user.spent_amount(@date_time)%>
-                    <td>
-                      <%= user.spent_amount(@date_time)%>
-                    </td>
-                    <td>
-                      <%= per_head_cost - spent_amount%>
-                    </td>
+                  <td>
+                    <%= spent_amount%>
+                  </td>
+                  <%penalty = user.penalty(@date_time)%>
+                  <td>
+                    <%= penalty%>
+                  </td>
+                  <td>
+                    <%= (per_head_cost - spent_amount + penalty).round(2)%>
+                  </td>
+                  <%payment_status = user.payment_status(@date_time)%>
+                  <td>
+                    <%if current_user.eligible_to_mark_payment(@date_time)%>
+                      <label class="switch switch-primary">
+                          <%if payment_status.paid%>
+                            <input id="toggle-event" type="checkbox" data-toggle="toggle", checked="checked", url=<%=change_payment_status_user_path(user, payment_id: payment_status.id)%> class="toogled-item">
+                          <%else%>
+                            <input id="toggle-event" type="checkbox" data-toggle="toggle", url=<%=change_payment_status_user_path(user, payment_id: payment_status.id)%> class="toogled-item">
+                          <%end%>
+                      </label>
+                    <%else%>
+                      <%= payment_status.try(:paid)%>
+                    <%end%>
+                  </td>
                 </tr>
                 <% end %>
             </tbody>
@@ -145,5 +165,31 @@
       </div>
     </div>
   </div>
+
+  <%= high_chart("investment", @chart) do |c| %>
+    <%= raw "options.tooltip.formatter = function() {return '<b>'+ this.point.name +'</b>: '+ this.y +' %';}"  %>
+    <%= raw "options.plotOptions.pie.dataLabels.formatter = function() { if (this.y > 5) return this.point.name; }"  %>
+  <% end %>
 </div>
-</div>
+
+<script type="text/javascript">
+  $(function() {
+      $('.toogled-item').change(function() {
+        $url = this.attributes.url.value
+        console.log($url)
+
+        $('#console-event').html('Toggle: ' + $(this).prop('checked'))
+        $.ajax({
+           type: 'PUT',
+           url: $url,
+           data: {},
+           success: function(data, status, xhr) {
+               console.log('success!!!');
+           },
+           error: function(xhr, status, err) {
+               console.log('error!!!');
+           }
+        });
+      })
+  })
+</script>
